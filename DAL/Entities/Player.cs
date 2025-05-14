@@ -4,6 +4,8 @@ namespace DAL.Entities
 {
     public abstract class Player
     {
+        public Guid Id { get; set; }
+
         public string Name { get; set; }
 
         public int Skill { get; set; }
