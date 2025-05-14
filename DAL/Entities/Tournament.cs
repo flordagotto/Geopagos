@@ -4,6 +4,8 @@ namespace DAL.Entities
 {
     public class Tournament
     {
+        public Tournament() { }
+
         public Guid Id { get; set; }
 
         public Gender Type { get; set; }

@@ -15,12 +15,16 @@ namespace DAL.Entities
 
 
     public class FemalePlayer : Player { 
+        public FemalePlayer() { }
+
         public int ReactionTime { get; set; }
     }
 
 
     public class MalePlayer : Player
     {
+        public MalePlayer() { }
+
         public int Strength { get; set; }
 
         public int Speed { get; set; }
