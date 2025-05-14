@@ -32,7 +32,7 @@ namespace GeoPagos.Controllers
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> Create([FromBody] TournamentDTO tournament)
+        public async Task<IActionResult> Create([FromBody] NewTournamentDTO tournament)
         {
             await _tournamentService.Create(tournament);
 

@@ -6,18 +6,13 @@ namespace Services.Services
     {
         Task<IEnumerable<TournamentDTO>> GetAll();
 
-        Task Create(TournamentDTO tournament);
-
         Task<IEnumerable<TournamentDTO>>? GetByFilter(TournamentFilterDto tournament);
+
+        Task Create(NewTournamentDTO tournament);
     }
 
     public class TournamentService : ITournamentService
     {
-        public Task Create(TournamentDTO tournament)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<IEnumerable<TournamentDTO>> GetAll()
         {
             throw new NotImplementedException();
@@ -27,5 +22,10 @@ namespace Services.Services
         {
             throw new NotImplementedException();
         }
+        public Task Create(NewTournamentDTO tournament)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
