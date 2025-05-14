@@ -27,7 +27,7 @@ namespace DAL.Context
                     ReactionTime = 90
                 });
 
-            modelBuilder.Entity<MalePlayer>().HasData(
+            modelBuilder.Entity<FemalePlayer>().HasData(
                 new FemalePlayer
                 {
                     Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
@@ -37,7 +37,7 @@ namespace DAL.Context
                     ReactionTime = 75
                 });
 
-            modelBuilder.Entity<FemalePlayer>().HasData(
+            modelBuilder.Entity<MalePlayer>().HasData(
                 new MalePlayer
                 {
                     Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),

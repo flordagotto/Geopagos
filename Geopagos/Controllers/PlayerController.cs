@@ -1,3 +1,4 @@
+using Common.Enums;
 using DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Services.Services;
@@ -23,18 +24,10 @@ namespace GeoPagos.Controllers
             return Ok(results);
         }
 
-        [HttpPost("/Female")]
-        public async Task<IActionResult> CreateFemalePlayer([FromBody] FemalePlayerDTO player)
+        [HttpPost("")]
+        public async Task<IActionResult> CreatePlayer([FromBody] NewPlayerDTO newPlayer)
         {
-            await _playerService.Create(player);
-
-            return Ok();
-        }
-
-        [HttpPost("/Male")]
-        public async Task<IActionResult> Create([FromBody] MalePlayerDTO player)
-        {
-            await _playerService.Create(player);
+            await _playerService.Create(newPlayer);
 
             return Ok();
         }
