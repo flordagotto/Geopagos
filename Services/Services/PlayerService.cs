@@ -1,4 +1,5 @@
-﻿using Common.Enums;
+﻿using AutoMapper;
+using Common.Enums;
 using DAL.Repositories;
 using Domain.Entities;
 using DTOs;
@@ -15,9 +16,11 @@ namespace Services.Services
     public class PlayerService : IPlayerService
     {
         public readonly IPlayerRepository _playerRepository;
+        private readonly IMapper _mapper;
 
-        public PlayerService(IPlayerRepository playerRepository) {
+        public PlayerService(IPlayerRepository playerRepository, IMapper mapper) {
             _playerRepository = playerRepository;
+            _mapper = mapper;
         }
 
         public async Task Create(PlayerDTO playerDTO)
@@ -26,15 +29,17 @@ namespace Services.Services
             {
                 Player player;
 
-                if (playerDTO.Gender == Gender.Female)
+                if (playerDTO.Gender == Gender.Female && playerDTO is FemalePlayerDTO femaleDto)
                 {
-                    var femalePlayerDTO = (FemalePlayerDTO)playerDTO;
-                    player = FemalePlayer.Create(femalePlayerDTO.Name, femalePlayerDTO.Skill, femalePlayerDTO.ReactionTime);
+                    player = FemalePlayer.Create(femaleDto.Name, femaleDto.Skill, femaleDto.ReactionTime);
+                }
+                else if (playerDTO.Gender == Gender.Male && playerDTO is MalePlayerDTO maleDto)
+                {
+                    player = MalePlayer.Create(maleDto.Name, maleDto.Skill, maleDto.Strength, maleDto.Speed);
                 }
                 else
                 {
-                    var malePlayerDTO = (MalePlayerDTO)playerDTO;
-                    player = MalePlayer.Create(malePlayerDTO.Name, malePlayerDTO.Skill, malePlayerDTO.Strength, malePlayerDTO.Speed);
+                    throw new ArgumentException("Unknown gender for player.");
                 }
 
                 await _playerRepository.Add(player);
@@ -42,12 +47,35 @@ namespace Services.Services
             catch(Exception ex)
             {
                 Console.WriteLine(ex);
+                throw;
             }
         }
 
         public async Task<IEnumerable<PlayerDTO>> GetAll()
         {
-            throw new NotImplementedException();
+            var result = new List<PlayerDTO>();
+
+            try
+            {
+                var players = await _playerRepository.GetAll();
+
+                if (players.Count != 0)
+                {
+                    result = players.Select<Player, PlayerDTO>(p => p.Gender switch
+                    {
+                        Gender.Female => _mapper.Map<FemalePlayerDTO>(p),
+                        Gender.Male => _mapper.Map<MalePlayerDTO>(p),
+                        _ => throw new NotImplementedException()
+                    }).ToList();
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
         }
     }
 }
