@@ -1,7 +1,6 @@
 ﻿using Common.Enums;
 using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace DAL.Context
 {
@@ -14,6 +13,7 @@ namespace DAL.Context
 
         public DbSet<Tournament> Tournaments { get; set; }
         public DbSet<Match> Matches { get; set; }
+        public DbSet<Player> Players { get; set; }
 
         private void UseSeed(ModelBuilder modelBuilder)
         {
