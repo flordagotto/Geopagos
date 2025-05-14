@@ -3,6 +3,7 @@ using Common.Enums;
 using DAL.Repositories;
 using Domain.Entities;
 using DTOs;
+using Microsoft.Extensions.Logging;
 
 namespace Services.Services
 {
@@ -17,10 +18,13 @@ namespace Services.Services
     {
         public readonly IPlayerRepository _playerRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<PlayerService> _logger;
 
-        public PlayerService(IPlayerRepository playerRepository, IMapper mapper) {
+        public PlayerService(IPlayerRepository playerRepository, IMapper mapper, ILogger<PlayerService> logger) 
+        {
             _playerRepository = playerRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task Create(PlayerDTO playerDTO)
@@ -46,7 +50,7 @@ namespace Services.Services
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex.Message, "Error creating player.");
                 throw;
             }
         }
@@ -73,7 +77,7 @@ namespace Services.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogError(ex.Message, "Error retrieving players.");
                 throw;
             }
         }
