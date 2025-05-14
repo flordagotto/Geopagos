@@ -1,4 +1,8 @@
-﻿using DTOs;
+﻿using AutoMapper;
+using Common.Enums;
+using DAL.Repositories;
+using Domain.Entities;
+using DTOs;
 
 namespace Services.Services
 {
@@ -11,16 +15,67 @@ namespace Services.Services
 
     public class PlayerService : IPlayerService
     {
-        public PlayerService() { }
+        public readonly IPlayerRepository _playerRepository;
+        private readonly IMapper _mapper;
 
-        public Task Create(PlayerDTO player)
-        {
-            return Task.CompletedTask;
+        public PlayerService(IPlayerRepository playerRepository, IMapper mapper) {
+            _playerRepository = playerRepository;
+            _mapper = mapper;
         }
 
-        public Task<IEnumerable<PlayerDTO>> GetAll()
+        public async Task Create(PlayerDTO playerDTO)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Player player;
+
+                if (playerDTO.Gender == Gender.Female && playerDTO is FemalePlayerDTO femaleDto)
+                {
+                    player = FemalePlayer.Create(femaleDto.Name, femaleDto.Skill, femaleDto.ReactionTime);
+                }
+                else if (playerDTO.Gender == Gender.Male && playerDTO is MalePlayerDTO maleDto)
+                {
+                    player = MalePlayer.Create(maleDto.Name, maleDto.Skill, maleDto.Strength, maleDto.Speed);
+                }
+                else
+                {
+                    throw new ArgumentException("Unknown gender for player.");
+                }
+
+                await _playerRepository.Add(player);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<PlayerDTO>> GetAll()
+        {
+            var result = new List<PlayerDTO>();
+
+            try
+            {
+                var players = await _playerRepository.GetAll();
+
+                if (players.Count != 0)
+                {
+                    result = players.Select<Player, PlayerDTO>(p => p.Gender switch
+                    {
+                        Gender.Female => _mapper.Map<FemalePlayerDTO>(p),
+                        Gender.Male => _mapper.Map<MalePlayerDTO>(p),
+                        _ => throw new NotImplementedException()
+                    }).ToList();
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
         }
     }
 }

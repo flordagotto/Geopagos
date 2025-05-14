@@ -1,10 +1,14 @@
-﻿namespace DTOs
+﻿using Common.Enums;
+
+namespace DTOs
 {
     public abstract class PlayerDTO
     {
         public string Name { get; set; }
 
         public int Skill { get; set; }
+
+        public Gender Gender { get; set; }
     }
 
     public class FemalePlayerDTO : PlayerDTO

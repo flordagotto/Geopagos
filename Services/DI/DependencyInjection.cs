@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Services.Mapping;
 using Services.Services;
 
 namespace Services.DI
@@ -11,6 +12,9 @@ namespace Services.DI
             services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IMatchService, MatchService>();
             services.AddScoped<ITournamentService, TournamentService>();
+
+            // mappers
+            services.AddAutoMapper(typeof(PlayerMapper).Assembly);
 
             return services;
         }

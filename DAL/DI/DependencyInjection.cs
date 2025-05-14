@@ -1,4 +1,5 @@
 ﻿using DAL.Context;
+using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +11,8 @@ namespace DAL.DI
         {
             services.AddDbContext<GameDbContext>(options =>
                 options.UseSqlServer(connectionString));
+
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
 
             return services;
         }
