@@ -1,4 +1,7 @@
-﻿using DTOs;
+﻿using Common.Enums;
+using DAL.Repositories;
+using Domain.Entities;
+using DTOs;
 
 namespace Services.Services
 {
@@ -11,14 +14,38 @@ namespace Services.Services
 
     public class PlayerService : IPlayerService
     {
-        public PlayerService() { }
+        public readonly IPlayerRepository _playerRepository;
 
-        public Task Create(PlayerDTO player)
-        {
-            return Task.CompletedTask;
+        public PlayerService(IPlayerRepository playerRepository) {
+            _playerRepository = playerRepository;
         }
 
-        public Task<IEnumerable<PlayerDTO>> GetAll()
+        public async Task Create(PlayerDTO playerDTO)
+        {
+            try
+            {
+                Player player;
+
+                if (playerDTO.Gender == Gender.Female)
+                {
+                    var femalePlayerDTO = (FemalePlayerDTO)playerDTO;
+                    player = FemalePlayer.Create(femalePlayerDTO.Name, femalePlayerDTO.Skill, femalePlayerDTO.ReactionTime);
+                }
+                else
+                {
+                    var malePlayerDTO = (MalePlayerDTO)playerDTO;
+                    player = MalePlayer.Create(malePlayerDTO.Name, malePlayerDTO.Skill, malePlayerDTO.Strength, malePlayerDTO.Speed);
+                }
+
+                await _playerRepository.Add(player);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        public async Task<IEnumerable<PlayerDTO>> GetAll()
         {
             throw new NotImplementedException();
         }
