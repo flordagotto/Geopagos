@@ -1,5 +1,4 @@
-﻿using DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Services.Services;
 
 namespace GeoPagos.Controllers
@@ -21,14 +20,6 @@ namespace GeoPagos.Controllers
             var results = await _matchService.GetAll();
 
             return Ok(results);
-        }
-
-        [HttpPost("")]
-        public async Task<IActionResult> Create([FromBody] MatchDTO match)
-        {
-            await _matchService.Create(match);
-
-            return Ok();
         }
     }
 }

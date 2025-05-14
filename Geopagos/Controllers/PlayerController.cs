@@ -23,8 +23,16 @@ namespace GeoPagos.Controllers
             return Ok(results);
         }
 
-        [HttpPost("")]
-        public async Task<IActionResult> Create([FromBody] PlayerDTO player)
+        [HttpPost("/Female")]
+        public async Task<IActionResult> CreateFemalePlayer([FromBody] FemalePlayerDTO player)
+        {
+            await _playerService.Create(player);
+
+            return Ok();
+        }
+
+        [HttpPost("/Male")]
+        public async Task<IActionResult> Create([FromBody] MalePlayerDTO player)
         {
             await _playerService.Create(player);
 
