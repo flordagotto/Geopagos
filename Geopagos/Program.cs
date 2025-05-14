@@ -1,12 +1,13 @@
-using DAL.Context;
+using Services.DI;
+using DAL.DI;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddDbContext<GameDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddControllers();
 

@@ -1,6 +1,6 @@
 ﻿using DTOs;
 
-namespace Services
+namespace Services.Services
 {
     public interface IMatchService
     {
