@@ -2,7 +2,7 @@
 
 namespace Domain.Entities
 {
-    public abstract class Player
+    public abstract class Player : Entity
     {
         protected Player(string name, int skill, Gender gender)
         {
@@ -12,13 +12,10 @@ namespace Domain.Entities
             if (skill < 0 || skill > 100)
                 throw new ArgumentException("Skill must be between 0 and 100.");
 
-            Id = Guid.NewGuid();
             Name = name;
             Skill = skill;
             Gender = gender;
         }
-
-        public Guid Id { get; }
 
         public string Name { get; }
 
@@ -29,7 +26,7 @@ namespace Domain.Entities
 
     public class FemalePlayer : Player
     {
-        private FemalePlayer(Guid id, string name, int skill, int reactionTime) : base(name, skill, Gender.Female)
+        private FemalePlayer(string name, int skill, int reactionTime) : base(name, skill, Gender.Female)
         {
             ReactionTime = reactionTime;
         }
@@ -39,7 +36,7 @@ namespace Domain.Entities
             if (reactionTime < 0)
                 throw new ArgumentException("Reaction time must be greater than 0.");
 
-            return new FemalePlayer(Guid.NewGuid(), name, skill, reactionTime);
+            return new FemalePlayer(name, skill, reactionTime);
         }
 
         public int ReactionTime { get; }

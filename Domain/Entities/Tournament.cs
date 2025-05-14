@@ -2,10 +2,8 @@
 
 namespace Domain.Entities
 {
-    public class Tournament
+    public class Tournament : Entity
     {
-        public Guid Id { get;}
-
         public Gender Type { get; }
 
         public DateTime Created { get; }
@@ -25,7 +23,6 @@ namespace Domain.Entities
 
         private Tournament(Gender type, IEnumerable<Player> players)
         {
-            Id = Guid.NewGuid();
             Type = type;
             Created = DateTime.Now;
             IsFinished = false;
@@ -39,5 +36,7 @@ namespace Domain.Entities
 
             return new Tournament(type, players);
         }
+
+        public bool HasPlayer(Player player) => _players.Contains(player);
     }
 }

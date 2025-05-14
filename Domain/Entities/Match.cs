@@ -1,9 +1,7 @@
 ﻿namespace Domain.Entities
 {
-    public class Match
+    public class Match : Entity
     {
-        public Guid Id { get; set; }
-
         public int Round { get; set; }
 
         public Player Player1 { get; set; }
@@ -16,7 +14,6 @@
 
         private Match(int round, Player player1, Player player2, Tournament tournament)
         {
-            Id = Guid.NewGuid();
             Round = round;
             Player1 = player1;
             Player2 = player2;
@@ -31,8 +28,8 @@
             if (player1.Id == player2.Id)
                 throw new ArgumentException("A player cannot play against themselves.");
 
-            //if (!tournament.HasPlayer(player1) || !tournament.HasPlayer(player2))
-            //    throw new InvalidOperationException("Players must belong to the tournament.");
+            if (!tournament.HasPlayer(player1) || !tournament.HasPlayer(player2))
+                throw new InvalidOperationException("Players must belong to the tournament.");
 
             return new Match(round, player1, player2, tournament);
         }
