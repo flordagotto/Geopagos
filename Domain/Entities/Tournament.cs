@@ -75,7 +75,7 @@ namespace Domain.Entities
                     var p1 = currentRoundPlayers[i];
                     var p2 = currentRoundPlayers[i + 1];
 
-                    var match = Match.Create(currentRound, p1, p2);
+                    var match = Match.Create(currentRound, p1, p2, this);
 
                     var winner = match.PlayMatch();
 
