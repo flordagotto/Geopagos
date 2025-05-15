@@ -29,7 +29,7 @@ namespace Domain.Entities
             _players = [.. players];
         }
 
-        public Tournament Create(Gender type, IEnumerable<Player> players)
+        public static Tournament Create(Gender type, IEnumerable<Player> players)
         {
             if(players == null || !players.Any()) 
                 throw new ArgumentNullException("A tournament should have at least 2 players.");
