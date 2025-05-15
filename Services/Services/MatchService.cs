@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Common.Enums;
 using DAL.Repositories;
-using Domain.Entities;
 using DTOs;
 using Microsoft.Extensions.Logging;
 

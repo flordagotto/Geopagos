@@ -16,10 +16,12 @@ namespace DAL.DI
             // repositories
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IMatchRepository, MatchRepository>();
+            services.AddScoped<ITournamentRepository, TournamentRepository>();
 
             // mapper
             services.AddAutoMapper(typeof(PlayerMapper).Assembly);
             services.AddAutoMapper(typeof(MatchMapper).Assembly);
+            services.AddAutoMapper(typeof(TournamentMapper).Assembly);
 
             return services;
         }

@@ -6,8 +6,7 @@ namespace DAL.Mapping
     {
         public MatchMapper()
         {
-            CreateMap<Domain.Entities.Match, Entities.Match>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<Domain.Entities.Match, Entities.Match>();
 
             CreateMap<Entities.Match, Domain.Entities.Match>();
         }

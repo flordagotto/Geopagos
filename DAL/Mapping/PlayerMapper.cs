@@ -6,11 +6,9 @@ namespace DAL.Mapping
     {
         public PlayerMapper()
         {
-            CreateMap<Domain.Entities.FemalePlayer, Entities.FemalePlayer>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<Domain.Entities.FemalePlayer, Entities.FemalePlayer>();
 
-            CreateMap<Domain.Entities.MalePlayer, Entities.MalePlayer>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<Domain.Entities.MalePlayer, Entities.MalePlayer>();
 
             CreateMap<Domain.Entities.Player, Entities.Player>()
                 .Include<Domain.Entities.FemalePlayer, Entities.FemalePlayer>()

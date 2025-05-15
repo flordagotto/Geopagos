@@ -16,6 +16,7 @@ namespace Services.DI
             // mappers
             services.AddAutoMapper(typeof(PlayerMapper).Assembly);
             services.AddAutoMapper(typeof(MatchMapper).Assembly);
+            services.AddAutoMapper(typeof(TournamentMapper).Assembly);
 
             return services;
         }

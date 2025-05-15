@@ -8,7 +8,10 @@ namespace DAL.Repositories
     public interface IPlayerRepository
     {
         Task Add(Domain.Entities.Player player);
+
         Task<List<Domain.Entities.Player>> GetAll();
+
+        Task<List<Domain.Entities.Player>> GetByIds(IEnumerable<Guid> ids);
     }
 
     public class PlayerRepository : IPlayerRepository
@@ -39,6 +42,20 @@ namespace DAL.Repositories
         {
             var dalPlayers = await _context.Players.ToListAsync();
 
+            return MapPlayers(dalPlayers);
+        }
+
+        public async Task<List<Domain.Entities.Player>> GetByIds(IEnumerable<Guid> ids)
+        {
+            var dalPlayers = await _context.Players.Where(x => ids.Contains(x.Id)).ToListAsync();
+
+            var domainPlayers = MapPlayers(dalPlayers);
+
+            return domainPlayers;
+        }
+
+        private List<Domain.Entities.Player> MapPlayers(List<Player> dalPlayers)
+        {
             var domainPlayers = new List<Domain.Entities.Player>();
 
             foreach (var dalPlayer in dalPlayers)
