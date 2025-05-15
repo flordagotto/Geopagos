@@ -16,15 +16,7 @@ namespace GeoPagos.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> GetAll()
-        {
-            var results = await _tournamentService.GetAll();
-
-            return Ok(results);
-        }
-
-        [HttpGet("/filter")]
-        public async Task<IActionResult> GetAll([FromBody] TournamentFilterDto filter)
+        public async Task<IActionResult> GetByFilter([FromQuery] TournamentFilterDto filter)
         {
             var results = await _tournamentService.GetByFilter(filter);
 
