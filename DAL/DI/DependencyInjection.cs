@@ -15,9 +15,11 @@ namespace DAL.DI
 
             // repositories
             services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<IMatchRepository, MatchRepository>();
 
             // mapper
             services.AddAutoMapper(typeof(PlayerMapper).Assembly);
+            services.AddAutoMapper(typeof(MatchMapper).Assembly);
 
             return services;
         }
