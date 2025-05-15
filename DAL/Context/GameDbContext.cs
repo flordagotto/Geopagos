@@ -59,6 +59,29 @@ namespace DAL.Context
                     Strength = 80,
                     Speed = 95
                 });
+
+            modelBuilder.Entity<Tournament>().HasData(
+                new Tournament
+                {
+                    Id = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    Type = Gender.Female,
+                    Created = DateTime.UtcNow,
+                    IsFinished = false
+                });
+
+            modelBuilder.Entity<PlayersByTournament>().HasData(
+                new PlayersByTournament
+                {
+                    TournamentId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    PlayerId = Guid.Parse("22222222-2222-2222-2222-222222222222")
+                });
+
+            modelBuilder.Entity<PlayersByTournament>().HasData(
+                new PlayersByTournament
+                {
+                    TournamentId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                    PlayerId = Guid.Parse("11111111-1111-1111-1111-111111111111")
+                });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
