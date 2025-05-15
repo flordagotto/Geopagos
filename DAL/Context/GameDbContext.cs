@@ -14,6 +14,7 @@ namespace DAL.Context
         public DbSet<Tournament> Tournaments { get; set; }
         public DbSet<Match> Matches { get; set; }
         public DbSet<Player> Players { get; set; }
+        public DbSet<PlayersByTournament> PlayersByTournament { get; set; }
 
         private void UseSeed(ModelBuilder modelBuilder)
         {
@@ -81,7 +82,8 @@ namespace DAL.Context
                 .HasOne(t => t.Winner)
                 .WithMany()
                 .HasForeignKey(t => t.WinnerId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
 
             modelBuilder.Entity<PlayersByTournament>()
                 .HasKey(pbt => new { pbt.PlayerId, pbt.TournamentId });

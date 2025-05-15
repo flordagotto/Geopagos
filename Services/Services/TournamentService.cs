@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Common.Enums;
 using DAL.Repositories;
+using Domain.Entities;
 using DTOs;
 using Microsoft.Extensions.Logging;
 
@@ -15,12 +17,14 @@ namespace Services.Services
     public class TournamentService : ITournamentService
     {
         public readonly ITournamentRepository _tournamentRepository;
+        private readonly IPlayerRepository _playerRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<MatchService> _logger;
 
-        public TournamentService(ITournamentRepository tournamentRepository, IMapper mapper, ILogger<MatchService> logger)
+        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMapper mapper, ILogger<MatchService> logger)
         {
             _tournamentRepository = tournamentRepository;
+            _playerRepository = playerRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -47,9 +51,20 @@ namespace Services.Services
             }
         }
 
-        public Task Create(NewTournamentDTO tournament)
+        public async Task Create(NewTournamentDTO newTournament)
         {
-            throw new NotImplementedException();
+            var players = await _playerRepository.GetByIds(newTournament.Players);
+            var missing = newTournament.Players.Except(players.Select(p => p.Id));
+
+            if (missing.Any())
+                throw new ArgumentException($"Some players not found: {string.Join(", ", missing)}");
+
+            if (players == null || !players.Any())
+                throw new ArgumentException("No valid players found for the tournament.");
+
+            Tournament tournament = Tournament.Create(newTournament.Type, players);
+
+            await _tournamentRepository.Add(tournament);
         }
 
     }

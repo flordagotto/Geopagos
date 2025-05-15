@@ -7,9 +7,10 @@ namespace DAL.Mapping
         public TournamentMapper()
         {
             CreateMap<Domain.Entities.Tournament, Entities.Tournament>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Players, opt => opt.Ignore());
 
-            CreateMap<Entities.Tournament, Domain.Entities.Tournament>();
+            CreateMap<Entities.Tournament, Domain.Entities.Tournament>()
+                .ForMember(dest => dest.Players, opt => opt.Ignore());
         }
     }
 }

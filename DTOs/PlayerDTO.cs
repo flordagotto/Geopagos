@@ -4,6 +4,8 @@ namespace DTOs
 {
     public abstract class PlayerDTO
     {
+        public Guid Id { get; set; }
+
         public string Name { get; set; }
 
         public int Skill { get; set; }

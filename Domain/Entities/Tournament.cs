@@ -31,8 +31,11 @@ namespace Domain.Entities
 
         public static Tournament Create(Gender type, IEnumerable<Player> players)
         {
-            if(players == null || !players.Any()) 
+            if(players == null || !players.Any() || players.Count() < 2) 
                 throw new ArgumentNullException("A tournament should have at least 2 players.");
+
+            if (players.Any(p => p.Gender != type))
+                throw new ArgumentException("All players must have the same gender as the tournament.");
 
             return new Tournament(type, players);
         }

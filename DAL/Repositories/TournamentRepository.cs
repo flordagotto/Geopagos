@@ -8,6 +8,7 @@ namespace DAL.Repositories
 {
     public interface ITournamentRepository
     {
+        Task Add(Domain.Entities.Tournament tournament);
         Task<List<Domain.Entities.Tournament>> GetFiltered(Gender? type, DateTime? from, DateTime? to, bool? isFinished);
     }
 
@@ -20,6 +21,27 @@ namespace DAL.Repositories
         {
             _context = context;
             _mapper = mapper;
+        }
+
+        public async Task Add(Domain.Entities.Tournament tournament)
+        {
+            Tournament entityTournament = _mapper.Map<Tournament>(tournament);
+            entityTournament.WinnerId = null;
+
+            _context.Tournaments.Add(entityTournament);
+
+            foreach (var player in tournament.Players)
+            {
+                var playerTournament = new PlayersByTournament
+                {
+                    TournamentId = entityTournament.Id,
+                    PlayerId = player.Id
+                };
+
+                _context.PlayersByTournament.Add(playerTournament);
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Domain.Entities.Tournament>> GetFiltered(Gender? type, DateTime? fromDate, DateTime? toDate, bool? isFinished)

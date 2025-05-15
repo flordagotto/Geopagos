@@ -4,6 +4,8 @@ namespace DTOs
 {
     public class TournamentDTO
     {
+        public Guid Id { get; set; }
+
         public Gender Type { get; set; }
 
         public DateTime Created { get; set; }
