@@ -6,8 +6,6 @@ namespace DTOs
     {
         public Gender Type { get; set; }
 
-        public bool IsFinished { get; set; }
-
         public List<Guid> Players { get; set; }
     }
 }

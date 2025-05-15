@@ -1,4 +1,5 @@
 using AutoMapper;
+using Common.Enums;
 using Common.Helpers;
 using DAL.Repositories;
 using Domain.Entities;
@@ -32,8 +33,8 @@ namespace Tests.Services
         public async Task GetByFilter_WhenThereAreNoFilters_ShouldCallGetFilteredWithoutFilters()
         {
             // Arrange
-            var tournament1 = CreateTournamentsAndSetupMapper();
-            var tournament2 = CreateTournamentsAndSetupMapper();
+            var tournament1 = CreateFemaleTournamentAndSetupMapper();
+            var tournament2 = CreateFemaleTournamentAndSetupMapper();
 
             var tournaments = new List<Tournament>();
             tournaments.Add(tournament1);
@@ -52,9 +53,9 @@ namespace Tests.Services
         public async Task GetByFilter_WhenFilteringByIsFinished_ShouldCallGetFilteredWithFilter()
         {
             // Arrange
-            var tournament1 = CreateTournamentsAndSetupMapper();
-            var tournament2 = CreateTournamentsAndSetupMapper();
-            var tournament3 = CreateTournamentsAndSetupMapper(isFinished: true);
+            var tournament1 = CreateFemaleTournamentAndSetupMapper();
+            var tournament2 = CreateFemaleTournamentAndSetupMapper();
+            var tournament3 = CreateFemaleTournamentAndSetupMapper(isFinished: true);
 
             var tournaments = new List<Tournament>();
             tournaments.Add(tournament3);
@@ -62,7 +63,7 @@ namespace Tests.Services
             _mocker.GetMock<ITournamentRepository>().Setup(x => x.GetFiltered(null, null, null, true)).ReturnsAsync(tournaments);
 
             // Act
-            var result = await _service.GetByFilter(new TournamentFilterDto() { IsFinished = true});
+            var result = await _service.GetByFilter(new TournamentFilterDto() { IsFinished = true });
 
             // Assert
             _mocker.GetMock<ITournamentRepository>().Verify(x => x.GetFiltered(null, null, null, true), Times.Once);
@@ -78,30 +79,144 @@ namespace Tests.Services
             result.Should().BeEmpty();
         }
 
-        private Tournament CreateTournamentsAndSetupMapper(bool isFinished = false)
+        [Test]
+        public async Task Create_HappyPath()
         {
-            var player1Name = RandomGenerator.GenerateRandomName();
-            var player2Name = RandomGenerator.GenerateRandomName();
+            // Arrange
+            var player1 = CreatePlayer(Gender.Female);
+            var player2 = CreatePlayer(Gender.Female);
 
-            var player1 = FemalePlayer.Create(player1Name, 80, 75);
-            var player2 = FemalePlayer.Create(player2Name, 90, 65);
+            var playersList = new List<Player> { player1, player2 };
 
-            var player1DTO = new FemalePlayerDTO { Name = player1Name, Skill = 80, ReactionTime = 75, Gender = Common.Enums.Gender.Female };
-            var player2DTO = new FemalePlayerDTO { Name = player2Name, Skill = 90, ReactionTime = 65, Gender = Common.Enums.Gender.Female };
-            // TODO: mejorar esto
+            var playersDTOsList = MapToPlayerDTOs(playersList);
 
-            var playersList = new List<Player>();
-            playersList.Add(player1);
-            playersList.Add(player2);
+            var playersIds = playersDTOsList.Select(x => x.Id).ToList();
 
-            var tournament = Tournament.Create(Common.Enums.Gender.Female, playersList);
+            var newTournament = new NewTournamentDTO { Type = Common.Enums.Gender.Female, Players = playersIds };
+
+            _mocker.GetMock<IPlayerRepository>().Setup(x => x.GetByIds(playersIds)).ReturnsAsync(playersList);
+
+            // Act
+            await _service.Create(newTournament);
+
+            // Assert
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Once);
+        }
+
+        [Test]
+        public async Task Create_WhenAmountOfPlayersIsLessThanTwo_ShouldThrowArgumentNullException()
+        {
+            // Arrange
+            var newTournament = new NewTournamentDTO { Type = Gender.Female };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            await act.Should().ThrowAsync<ArgumentNullException>();
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        [Test]
+        public async Task Create_WhenAmountOfPlayersIsWrong_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var player1 = CreatePlayer(Gender.Female);
+            var playersList = new List<Player> { player1 };
+
+            var playersDTOsList = MapToPlayerDTOs(playersList);
+
+            var playersIds = playersDTOsList.Select(x => x.Id).ToList();
+
+            var newTournament = new NewTournamentDTO { Type = Gender.Female, Players = playersIds };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            await act.Should().ThrowAsync<ArgumentException>("The amount of players in a tournament should be power of two");
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        [Test]
+        public async Task Create_WhenListOfPlayersIsWrong_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var player1 = CreatePlayer(Gender.Female);
+            var player2 = CreatePlayer(Gender.Male);
+            var playersList = new List<Player> { player1, player2 };
+
+            var playersDTOsList = MapToPlayerDTOs(playersList);
+
+            var playersIds = playersDTOsList.Select(x => x.Id).ToList();
+
+            var newTournament = new NewTournamentDTO { Type = Gender.Female, Players = playersIds };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            await act.Should().ThrowAsync<ArgumentException>("All players must have the same gender as the tournament.");
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        [Test]
+        public async Task Create_WhenPlayersAreMissing_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var player1 = CreatePlayer(Gender.Female);
+            var player2 = CreatePlayer(Gender.Female);
+
+            var playersList = new List<Player> { player1, player2 };
+
+            var playersDTOsList = MapToPlayerDTOs(playersList);
+
+            var playersIds = playersDTOsList.Select(x => x.Id).ToList();
+            playersIds.Add(Guid.NewGuid());
+
+            _mocker.GetMock<IPlayerRepository>().Setup(x => x.GetByIds(playersIds)).ReturnsAsync(playersList);
+
+            var newTournament = new NewTournamentDTO { Type = Gender.Female, Players = playersIds };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            var result = await act.Should().ThrowAsync<ArgumentException>();
+            result.Which.Message.Should().StartWith("Some players not found:");
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        [Test]
+        public async Task Create_WhenPlayerDoesNotExist_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var playersIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+            var newTournament = new NewTournamentDTO { Type = Gender.Female, Players = playersIds };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            await act.Should().ThrowAsync<ArgumentException>("No valid players found for the tournament.");
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        private Tournament CreateFemaleTournamentAndSetupMapper(bool isFinished = false)
+        {
+            var player1 = CreatePlayer(Gender.Female);
+            var player2 = CreatePlayer(Gender.Female);
+            var playersList = new List<Player> { player1, player2 };
+
+            var tournament = Tournament.Create(Gender.Female, playersList);
 
             var tournamentDTO = new TournamentDTO
             {
                 Created = tournament.Created,
                 IsFinished = isFinished,
-                Players = new List<PlayerDTO> { player1DTO, player2DTO },
-                Type = Common.Enums.Gender.Female
+                Players = MapToPlayerDTOs(playersList),
+                Type = Gender.Female
             };
 
             _mocker.GetMock<IMapper>()
@@ -109,6 +224,47 @@ namespace Tests.Services
                 .Returns((Tournament t) => tournamentDTO);
 
             return tournament;
+        }
+
+        private static Player CreatePlayer(Gender gender)
+        {
+            if (gender == Gender.Male)
+                return MalePlayer.Create(RandomGenerator.GenerateRandomName(), 85, 60, 99);
+
+            return FemalePlayer.Create(RandomGenerator.GenerateRandomName(), 80, 75);
+        }
+
+        private static List<PlayerDTO> MapToPlayerDTOs(List<Player> players)
+        {
+            return players.Select<Player, PlayerDTO>(p =>
+            {
+                if (p is MalePlayer male)
+                {
+                    return new MalePlayerDTO
+                    {
+                        Id = male.Id,
+                        Name = male.Name,
+                        Skill = male.Skill,
+                        Strength = male.Strength,
+                        Speed = male.Speed,
+                        Gender = Gender.Male
+                    };
+                }
+
+                if (p is FemalePlayer female)
+                {
+                    return new FemalePlayerDTO
+                    {
+                        Id = female.Id,
+                        Name = female.Name,
+                        Skill = female.Skill,
+                        ReactionTime = female.ReactionTime,
+                        Gender = Gender.Female
+                    };
+                }
+
+                throw new InvalidOperationException("Unknown player type.");
+            }).Cast<PlayerDTO>().ToList();
         }
     }
 }
