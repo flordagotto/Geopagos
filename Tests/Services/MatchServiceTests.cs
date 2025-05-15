@@ -20,8 +20,8 @@ namespace Tests.Services
         IMatchService _service;
 
 
-        [OneTimeSetUp]
-        public void OneTimeSetup()
+        [SetUp]
+        public void Setup()
         {
             _mocker = new AutoMocker();
 

@@ -19,8 +19,8 @@ namespace Tests.Services
         IPlayerService _service;
 
 
-        [OneTimeSetUp]
-        public void OneTimeSetup()
+        [SetUp]
+        public void Setup()
         {
             _mocker = new AutoMocker();
 
@@ -63,6 +63,63 @@ namespace Tests.Services
 
             // Assert
             result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task Create_WhenHasCorrectData_ShouldCreateAPlayer()
+        {
+            // Arrange
+            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = 100};
+            var newPlayer = MalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.Strength.Value, newPlayerDTO.Speed.Value);
+            _mocker.GetMock<IPlayerRepository>().Setup(x => x.Add(newPlayer));
+
+            // Act
+            await _service.Create(newPlayerDTO);
+
+            // Assert
+            _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Once());
+        }
+
+        [Test]
+        public async Task Create_WhenHasIncorrectDataForGender_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, ReactionTime = 55, Speed = 50, Strength = 100 };
+
+            // Act && assert
+            var act = async () => await _service.Create(newPlayerDTO);
+
+            await act.Should().ThrowAsync<ArgumentException>();
+
+            _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
+        }
+
+        [Test]
+        public async Task Create_WhenDataIsMissing_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Skill = 88, Speed = 50, Strength = 100 };
+
+            // Act && assert
+            var act = async () => await _service.Create(newPlayerDTO);
+
+            await act.Should().ThrowAsync<ArgumentException>("Name is required.");
+
+            _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
+        }
+
+        [Test]
+        public async Task Create_WhenDataIsWrong_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = -5 };
+
+            // Act && assert
+            var act = async () => await _service.Create(newPlayerDTO);
+
+            await act.Should().ThrowAsync<ArgumentException>("Strength must be greater than 0.");
+
+            _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
         }
 
         private Player CreatePlayerAndSetupMapper()
