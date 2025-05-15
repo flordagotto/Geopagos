@@ -67,7 +67,7 @@ namespace Services.Services
             {
                 var players = await _playerRepository.GetAll();
 
-                if (players.Count != 0)
+                if (players != null && players.Count != 0)
                 {
                     result = players.Select<Player, PlayerDTO>(p => p.Gender switch
                     {

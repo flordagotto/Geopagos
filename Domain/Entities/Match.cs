@@ -20,7 +20,7 @@
             Tournament = tournament;
         }
 
-        public Match Create(int round, Player player1, Player player2, Tournament tournament)
+        public static Match Create(int round, Player player1, Player player2, Tournament tournament)
         {
             if (round <= 0)
                 throw new ArgumentException("Round must be greater than 0.");

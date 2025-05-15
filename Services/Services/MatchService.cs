@@ -32,7 +32,7 @@ namespace Services.Services
             {
                 var matches = await _matchRepository.GetAll();
 
-                if (matches.Count != 0)
+                if (matches != null && matches.Count != 0)
                 {
                     result = matches.Select(m => _mapper.Map<MatchDTO>(m)).ToList();
                 }
