@@ -12,6 +12,8 @@ namespace Services.Services
         Task<IEnumerable<TournamentDTO>> GetByFilter(TournamentFilterDto filter);
 
         Task Create(NewTournamentDTO tournament);
+
+        Task<Player> StartTournament(Guid tournamentId);
     }
 
     public class TournamentService : ITournamentService
@@ -77,7 +79,7 @@ namespace Services.Services
             }
         }
 
-        public async Task StartTournament(Guid tournamentId)
+        public async Task<Player> StartTournament(Guid tournamentId)
         {
             try
             {
@@ -89,6 +91,8 @@ namespace Services.Services
                     await _matchRepository.Add(match);
 
                 await _tournamentRepository.SetWinner(tournamentId, winner.Id);
+
+                return winner;
             }
             catch (Exception ex)
             {

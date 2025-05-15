@@ -27,6 +27,7 @@ namespace Domain.Entities
             Created = DateTime.Now;
             IsFinished = false;
             _players = [.. players];
+            Matches = new List<Match>();
         }
 
         internal Tournament(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, List<Player> players)
@@ -37,6 +38,7 @@ namespace Domain.Entities
             IsFinished = isFinished;
             WinnerId = winnerId;
             _players = players;
+            Matches = new List<Match>();
         }
 
         public static Tournament Create(Gender type, IEnumerable<Player> players)
@@ -77,6 +79,8 @@ namespace Domain.Entities
                     var match = Match.Create(currentRound, p1, p2, this);
 
                     match.PlayMatch();
+
+                    Matches.Add(match);
 
                     nextRoundPlayers.Add(match.Winner);
                 }
