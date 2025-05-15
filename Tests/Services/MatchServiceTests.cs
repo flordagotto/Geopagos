@@ -53,7 +53,6 @@ namespace Tests.Services
             matchesResult[0].Player2.Skill.Should().Be(match1.Player2.Skill);
             matchesResult[0].Player1.Gender.Should().Be(match1.Player1.Gender);
             matchesResult[0].Player2.Gender.Should().Be(match1.Player2.Gender);
-            matchesResult[0].Tournament.Type.Should().Be(match1.Tournament.Type);
 
             matchesResult[1].Player1.Name.Should().Be(match2.Player1.Name);
             matchesResult[1].Player2.Name.Should().Be(match2.Player2.Name);
@@ -61,7 +60,6 @@ namespace Tests.Services
             matchesResult[1].Player2.Skill.Should().Be(match2.Player2.Skill);
             matchesResult[1].Player1.Gender.Should().Be(match2.Player1.Gender);
             matchesResult[1].Player2.Gender.Should().Be(match2.Player2.Gender);
-            matchesResult[1].Tournament.Type.Should().Be(match2.Tournament.Type);
         }
 
         [Test]
@@ -86,26 +84,13 @@ namespace Tests.Services
             var player2DTO = new FemalePlayerDTO { Name = player2Name, Skill = 90, ReactionTime = 65, Gender = Common.Enums.Gender.Female };
              // TODO: mejorar esto
 
-            var playersList = new List<Player>();
-            playersList.Add(player1);
-            playersList.Add(player2);
-
-            var tournament = Tournament.Create(Common.Enums.Gender.Female, playersList);
-
-            var tournamentDTO = new TournamentDTO { Created = tournament.Created, 
-                                                    IsFinished = false, 
-                                                    Players = new List<PlayerDTO> { player1DTO, player2DTO },
-                                                    Type = Common.Enums.Gender.Female
-                                                    };
-
-            var match = Match.Create(1, player1, player2, tournament);
+            var match = Match.Create(1, player1, player2);
 
             var dto = new MatchDTO
             {
                 Round = match.Round,
                 Player1 = player1DTO,
-                Player2 = player2DTO,
-                Tournament = tournamentDTO
+                Player2 = player2DTO
             };
 
             _mocker.GetMock<IMapper>()

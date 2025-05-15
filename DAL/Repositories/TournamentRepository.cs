@@ -116,6 +116,7 @@ namespace DAL.Repositories
                 .FirstAsync(x => x.Id == tournamentId);
 
             tournament.WinnerId = playerId;
+            tournament.IsFinished = true;
 
             await _context.SaveChangesAsync();
         }

@@ -23,7 +23,7 @@ namespace Domain.Entities
 
         public Gender Gender { get; }
 
-        public abstract double GetGameValue(double luck);
+        public abstract double GetGameValue();
     }
 
     public class FemalePlayer : Player
@@ -43,9 +43,9 @@ namespace Domain.Entities
 
         public int ReactionTime { get; }
 
-        public override double GetGameValue(double luck)
+        public override double GetGameValue()
         {
-            return Skill * ReactionTime * luck;
+            return Skill * ReactionTime;
         }
     }
 
@@ -73,9 +73,9 @@ namespace Domain.Entities
 
         public int Speed { get; }
 
-        public override double GetGameValue(double luck)
+        public override double GetGameValue()
         {
-            return Skill * Strength * Speed * luck;
+            return Skill * Strength * Speed;
         }
     }
 }
