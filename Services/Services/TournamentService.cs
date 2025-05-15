@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Common.Enums;
 using DAL.Repositories;
 using Domain.Entities;
 using DTOs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Services.Services
@@ -53,19 +53,41 @@ namespace Services.Services
 
         public async Task Create(NewTournamentDTO newTournament)
         {
-            var players = await _playerRepository.GetByIds(newTournament.Players);
-            var missing = newTournament.Players.Except(players.Select(p => p.Id));
+            try
+            {
+                var players = await _playerRepository.GetByIds(newTournament.Players);
+                var missing = newTournament.Players.Except(players.Select(p => p.Id));
 
-            if (missing.Any())
-                throw new ArgumentException($"Some players not found: {string.Join(", ", missing)}");
+                if (missing.Any())
+                    throw new ArgumentException($"Some players not found: {string.Join(", ", missing)}");
 
-            if (players == null || !players.Any())
-                throw new ArgumentException("No valid players found for the tournament.");
+                if (players == null || !players.Any())
+                    throw new ArgumentException("No valid players found for the tournament.");
 
-            Tournament tournament = Tournament.Create(newTournament.Type, players);
+                Tournament tournament = Tournament.Create(newTournament.Type, players);
 
-            await _tournamentRepository.Add(tournament);
+                await _tournamentRepository.Add(tournament);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, "Error creating a new tournament.");
+                throw;
+            }
         }
 
+        public async Task StartTournament(Guid tournamentId)
+        {
+            try
+            {
+                var tournament = await _tournamentRepository.GetById(tournamentId) ?? throw new Exception("Tournament not found");
+                
+                var winner = tournament.SimulateTournament();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, "Error starting the tournament.");
+                throw;
+            }
+        }
     }
 }

@@ -9,5 +9,11 @@
             return new string(Enumerable.Range(0, length)
                 .Select(_ => chars[rand.Next(chars.Length)]).ToArray());
         }
+
+        public static double GenerateLuckProbability()
+        {
+            var random = new Random();
+            return (1 + random.NextDouble());
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Common.Enums;
 using DAL.Context;
 using DAL.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
@@ -9,7 +10,10 @@ namespace DAL.Repositories
     public interface ITournamentRepository
     {
         Task Add(Domain.Entities.Tournament tournament);
+
         Task<List<Domain.Entities.Tournament>> GetFiltered(Gender? type, DateTime? from, DateTime? to, bool? isFinished);
+
+        Task<Domain.Entities.Tournament>? GetById(Guid id);
     }
 
     public class TournamentRepository : ITournamentRepository
@@ -25,7 +29,7 @@ namespace DAL.Repositories
 
         public async Task Add(Domain.Entities.Tournament tournament)
         {
-            Tournament entityTournament = _mapper.Map<Tournament>(tournament);
+            Entities.Tournament entityTournament = _mapper.Map<Entities.Tournament>(tournament);
             entityTournament.WinnerId = null;
 
             _context.Tournaments.Add(entityTournament);
@@ -46,7 +50,7 @@ namespace DAL.Repositories
 
         public async Task<List<Domain.Entities.Tournament>> GetFiltered(Gender? type, DateTime? fromDate, DateTime? toDate, bool? isFinished)
         {
-            IQueryable<Tournament> query = _context.Tournaments;
+            IQueryable<Entities.Tournament> query = _context.Tournaments;
 
             if (type.HasValue)
                 query = query.Where(t => t.Type == type.Value);
@@ -72,6 +76,36 @@ namespace DAL.Repositories
             }
 
             return domainTournaments;
+        }
+
+        public async Task<Domain.Entities.Tournament>? GetById(Guid id)
+        {
+            var result = await _context.Tournaments
+                .Include(t => t.Players)
+                .ThenInclude(pt => pt.Player)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (result == null)
+                return null;
+
+            var domainPlayersInTournament = new List<Domain.Entities.Player>();
+
+            foreach (var player in result.Players)
+            {
+                var dalPlayer = await _context.Players.FirstOrDefaultAsync(x => x.Id == player.PlayerId);
+                domainPlayersInTournament.Add(_mapper.Map<Domain.Entities.Player>(dalPlayer));
+            }
+
+            var tournament = TournamentFactory.FromPersistence(
+                result.Id, 
+                result.Type, 
+                result.Created, 
+                result.IsFinished, 
+                result.WinnerId,
+                domainPlayersInTournament
+                );
+
+            return tournament;
         }
     }
 }

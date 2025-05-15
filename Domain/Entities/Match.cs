@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities
+﻿using Common.Helpers;
+
+namespace Domain.Entities
 {
     public class Match : Entity
     {
@@ -32,6 +34,13 @@
                 throw new InvalidOperationException("Players must belong to the tournament.");
 
             return new Match(round, player1, player2, tournament);
+        }
+
+        public void PlayMatch()
+        {
+            Winner = Player1.GetGameValue(RandomGenerator.GenerateLuckProbability()) 
+                < Player2.GetGameValue(RandomGenerator.GenerateLuckProbability()) 
+                ? Player2 : Player1;
         }
     }
 }

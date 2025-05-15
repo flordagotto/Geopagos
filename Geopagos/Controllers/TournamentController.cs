@@ -30,5 +30,14 @@ namespace GeoPagos.Controllers
 
             return Ok();
         }
+
+
+        [HttpPut("Start/{tournamentId}")]
+        public async Task<IActionResult> Start([FromQuery] Guid tournamentId)
+        {
+            await _tournamentService.Create(tournament);
+
+            return Ok();
+        }
     }
 }
