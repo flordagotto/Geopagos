@@ -14,6 +14,8 @@ namespace DAL.Repositories
         Task<List<Domain.Entities.Tournament>> GetFiltered(Gender? type, DateTime? from, DateTime? to, bool? isFinished);
 
         Task<Domain.Entities.Tournament>? GetById(Guid id);
+
+        Task SetWinner(Guid tournamentId, Guid playerId);
     }
 
     public class TournamentRepository : ITournamentRepository
@@ -106,6 +108,16 @@ namespace DAL.Repositories
                 );
 
             return tournament;
+        }
+
+        public async Task SetWinner(Guid tournamentId, Guid playerId)
+        {
+            var tournament = await _context.Tournaments
+                .FirstAsync(x => x.Id == tournamentId);
+
+            tournament.WinnerId = playerId;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

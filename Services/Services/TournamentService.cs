@@ -18,13 +18,15 @@ namespace Services.Services
     {
         public readonly ITournamentRepository _tournamentRepository;
         private readonly IPlayerRepository _playerRepository;
+        private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<MatchService> _logger;
 
-        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMapper mapper, ILogger<MatchService> logger)
+        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMatchRepository matchRepository, IMapper mapper, ILogger<MatchService> logger)
         {
             _tournamentRepository = tournamentRepository;
             _playerRepository = playerRepository;
+            _matchRepository = matchRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -82,6 +84,11 @@ namespace Services.Services
                 var tournament = await _tournamentRepository.GetById(tournamentId) ?? throw new Exception("Tournament not found");
                 
                 var winner = tournament.SimulateTournament();
+
+                foreach (var match in tournament.Matches)
+                    await _matchRepository.Add(match);
+
+                await _tournamentRepository.SetWinner(tournamentId, winner.Id);
             }
             catch (Exception ex)
             {

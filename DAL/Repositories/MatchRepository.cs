@@ -7,6 +7,8 @@ namespace DAL.Repositories
     public interface IMatchRepository
     {
         Task<List<Domain.Entities.Match>> GetAll();
+
+        Task Add(Domain.Entities.Match newMatch);
     }
 
     public class MatchRepository : IMatchRepository
@@ -34,6 +36,14 @@ namespace DAL.Repositories
             }
 
             return domainMatches;
+        }
+
+        public async Task Add(Domain.Entities.Match newMatch)
+        {
+            var entityMatch = _mapper.Map<Entities.Match>(newMatch);
+
+            _context.Matches.Add(entityMatch);
+            await _context.SaveChangesAsync();
         }
     }
 }
