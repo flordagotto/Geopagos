@@ -2,6 +2,8 @@
 {
     public class PlayersByTournament
     {
+        public PlayersByTournament() { }
+
         public Guid TournamentId { get; set; }
 
         public Guid PlayerId { get; set; }

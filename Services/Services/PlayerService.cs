@@ -9,9 +9,9 @@ namespace Services.Services
 {
     public interface IPlayerService
     {
-        Task<IEnumerable<PlayerDTO>> GetAll();
+        Task Create(NewPlayerDTO player);
 
-        Task Create(PlayerDTO player);
+        Task<IEnumerable<PlayerDTO>> GetAll();
     }
 
     public class PlayerService : IPlayerService
@@ -27,31 +27,35 @@ namespace Services.Services
             _logger = logger;
         }
 
-        public async Task Create(PlayerDTO playerDTO)
+        public async Task Create(NewPlayerDTO newPlayerDTO)
         {
-            try
+            Player player = newPlayerDTO.Gender switch
             {
-                Player player;
+                Gender.Female when HasCorrectData(newPlayerDTO, true) =>
+                    FemalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.ReactionTime!.Value),
 
-                if (playerDTO.Gender == Gender.Female && playerDTO is FemalePlayerDTO femaleDto)
-                {
-                    player = FemalePlayer.Create(femaleDto.Name, femaleDto.Skill, femaleDto.ReactionTime);
-                }
-                else if (playerDTO.Gender == Gender.Male && playerDTO is MalePlayerDTO maleDto)
-                {
-                    player = MalePlayer.Create(maleDto.Name, maleDto.Skill, maleDto.Strength, maleDto.Speed);
-                }
-                else
-                {
-                    throw new ArgumentException("Unknown gender for player.");
-                }
+                Gender.Male when HasCorrectData(newPlayerDTO, false) =>
+                    MalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.Strength!.Value, newPlayerDTO.Speed!.Value),
 
-                await _playerRepository.Add(player);
+                _ => throw new ArgumentException("Invalid player data.")
+            };
+
+            await _playerRepository.Add(player);
+        }
+
+        private bool HasCorrectData(NewPlayerDTO player, bool femaleDataIsExpected)
+        {
+            if (femaleDataIsExpected)
+            {
+                return player.ReactionTime.HasValue
+                    && !player.Strength.HasValue
+                    && !player.Speed.HasValue;
             }
-            catch(Exception ex)
+            else
             {
-                _logger.LogError(ex.Message, "Error creating player.");
-                throw;
+                return !player.ReactionTime.HasValue
+                    && player.Strength.HasValue
+                    && player.Speed.HasValue;
             }
         }
 

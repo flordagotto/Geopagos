@@ -2,6 +2,7 @@
 {
     public class Match
     {
+        public Match() { }
         public Guid Id { get; set; }
 
         public int Round { get; set; }
