@@ -10,7 +10,13 @@ namespace Services.Mapping
         {
             CreateMap<TournamentDTO, Tournament>();
 
-            CreateMap<Tournament, TournamentDTO>();
+            CreateMap<Tournament, TournamentDTO>()
+                .ForMember(dest => dest.Players, opt => opt.MapFrom(src => src.Players))
+                .ForMember(dest => dest.Matches, opt => opt.MapFrom(src => src.Matches));
+
+            CreateMap<Player, PlayerDTO>()
+                .Include<FemalePlayer, FemalePlayerDTO>()
+                .Include<MalePlayer, MalePlayerDTO>();
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using DAL.Context;
-using Microsoft.EntityFrameworkCore;
+using Domain.Entities;
 
 namespace DAL.Repositories
 {
     public interface IMatchRepository
     {
-        Task<List<Domain.Entities.Match>> GetAll();
+        Task Add(Match newMatch);
     }
 
     public class MatchRepository : IMatchRepository
@@ -20,20 +20,11 @@ namespace DAL.Repositories
             _mapper = mapper;
         }
 
-        public async Task<List<Domain.Entities.Match>> GetAll()
+        public async Task Add(Match newMatch)
         {
-            var dalMatches = await _context.Matches.ToListAsync();
+            var entityMatch = _mapper.Map<Entities.Match>(newMatch);
 
-            var domainMatches = new List<Domain.Entities.Match>();
-
-            foreach (var dalMatch in dalMatches)
-            {
-                var domainMatch = _mapper.Map<Domain.Entities.Match>(dalMatch);
-
-                domainMatches.Add(domainMatch);
-            }
-
-            return domainMatches;
+            _context.Matches.Add(entityMatch);
         }
     }
 }

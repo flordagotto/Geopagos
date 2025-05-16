@@ -29,18 +29,29 @@ namespace Services.Services
 
         public async Task Create(NewPlayerDTO newPlayerDTO)
         {
-            Player player = newPlayerDTO.Gender switch
+            try
             {
-                Gender.Female when HasCorrectData(newPlayerDTO, true) =>
-                    FemalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.ReactionTime!.Value),
+                if (!Enum.IsDefined(newPlayerDTO.Gender))
+                    throw new ArgumentException("The gender must be 0 (male) or 1 (female)");
 
-                Gender.Male when HasCorrectData(newPlayerDTO, false) =>
-                    MalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.Strength!.Value, newPlayerDTO.Speed!.Value),
+                Player player = newPlayerDTO.Gender switch
+                {
+                    Gender.Female when HasCorrectData(newPlayerDTO, true) =>
+                        FemalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.ReactionTime!.Value),
 
-                _ => throw new ArgumentException("Invalid player data.")
-            };
+                    Gender.Male when HasCorrectData(newPlayerDTO, false) =>
+                        MalePlayer.Create(newPlayerDTO.Name, newPlayerDTO.Skill, newPlayerDTO.Strength!.Value, newPlayerDTO.Speed!.Value),
 
-            await _playerRepository.Add(player);
+                    _ => throw new ArgumentException("Invalid player data.")
+                };
+
+                await _playerRepository.Add(player);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, "Error creating a player.");
+                throw;
+            }
         }
 
         private bool HasCorrectData(NewPlayerDTO player, bool femaleDataIsExpected)

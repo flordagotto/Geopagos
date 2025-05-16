@@ -10,12 +10,11 @@ namespace Domain.Entities
 
         public bool IsFinished { get; private set; }
 
-        public Guid WinnerId { get; private set; }
+        public Guid? WinnerId { get; private set; }
 
         public Player? Winner { get; private set; }
 
         public List<Match>? Matches { get; set; }
-
 
         private readonly List<Player> _players;
         public IReadOnlyCollection<Player> Players => _players.AsReadOnly();
@@ -27,6 +26,17 @@ namespace Domain.Entities
             Created = DateTime.Now;
             IsFinished = false;
             _players = [.. players];
+        }
+
+        internal Tournament(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, List<Player> players, List<Match> matches)
+        {
+            Id = id;
+            Type = type;
+            Created = created;
+            IsFinished = isFinished;
+            WinnerId = winnerId;
+            _players = players;
+            Matches = matches;
         }
 
         public static Tournament Create(Gender type, IEnumerable<Player> players)
@@ -48,6 +58,45 @@ namespace Domain.Entities
         private static bool IsPowerOfTwo(int number)
         {
             return number > 0 && (number & (number - 1)) == 0;
+        }
+
+        public Player Start()
+        {
+            Matches = new List<Match>();
+            var currentRoundPlayers = new List<Player>(Players);
+            var currentRound = 1;
+
+            while (currentRoundPlayers.Count > 1)
+            {
+                var nextRoundPlayers = new List<Player>();
+
+                for (int i = 0; i < currentRoundPlayers.Count; i += 2)
+                {
+                    var p1 = currentRoundPlayers[i];
+                    var p2 = currentRoundPlayers[i + 1];
+
+                    var match = Match.Create(currentRound, p1, p2, Id);
+
+                    var winner = match.PlayMatch();
+
+                    Matches.Add(match);
+
+                    nextRoundPlayers.Add(winner);
+                }
+
+                currentRoundPlayers = nextRoundPlayers;
+                currentRound++;
+            }
+
+            return currentRoundPlayers.Single();
+        }
+    }
+
+    public static class TournamentFactory
+    { //todo: mejorar?
+        public static Tournament LoadFromPersistance(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, IEnumerable<Player> players, IEnumerable<Match> matches)
+        {
+            return new Tournament(id, type, created, isFinished, winnerId, players.ToList(), matches.ToList());
         }
     }
 }
