@@ -52,7 +52,9 @@ namespace DAL.Repositories
 
         public async Task<List<Domain.Entities.Tournament>> GetFiltered(Gender? type, DateTime? fromDate, DateTime? toDate, bool? isFinished)
         {
-            IQueryable<Entities.Tournament> query = _context.Tournaments;
+            IQueryable<Entities.Tournament> query = _context.Tournaments
+                .Include(t => t.Players)
+                .ThenInclude(pt => pt.Player);
 
             if (type.HasValue)
                 query = query.Where(t => t.Type == type.Value);
@@ -72,9 +74,7 @@ namespace DAL.Repositories
 
             foreach (var dalTournament in dalTournaments)
             {
-                var domainTournament = _mapper.Map<Domain.Entities.Tournament>(dalTournament);
-
-                domainTournaments.Add(domainTournament);
+                domainTournaments.Add(await MapTournamentToDomain(dalTournament));
             }
 
             return domainTournaments;
@@ -90,24 +90,7 @@ namespace DAL.Repositories
             if (result == null)
                 return null;
 
-            var domainPlayersInTournament = new List<Domain.Entities.Player>();
-
-            foreach (var player in result.Players)
-            {
-                var dalPlayer = await _context.Players.FirstOrDefaultAsync(x => x.Id == player.PlayerId);
-                domainPlayersInTournament.Add(_mapper.Map<Domain.Entities.Player>(dalPlayer));
-            }
-
-            var tournament = TournamentFactory.LoadFromPersistance(
-                result.Id, 
-                result.Type, 
-                result.Created, 
-                result.IsFinished, 
-                result.WinnerId,
-                domainPlayersInTournament
-                );
-
-            return tournament;
+            return await MapTournamentToDomain(result);
         }
 
         public async Task SetWinner(Guid tournamentId, Guid playerId)
@@ -117,6 +100,28 @@ namespace DAL.Repositories
 
             tournament.WinnerId = playerId;
             tournament.IsFinished = true;
+        }
+
+        private async Task<Domain.Entities.Tournament> MapTournamentToDomain(Entities.Tournament dalTournament)
+        {
+            var domainPlayersInTournament = new List<Domain.Entities.Player>();
+
+            foreach (var player in dalTournament.Players)
+            {
+                var dalPlayer = await _context.Players.FirstOrDefaultAsync((x => x.Id == player.PlayerId));
+                domainPlayersInTournament.Add(_mapper.Map<Domain.Entities.Player>((object?)dalPlayer));
+            }
+
+            var domainTournament = TournamentFactory.LoadFromPersistance(
+                dalTournament.Id,
+                dalTournament.Type,
+                dalTournament.Created,
+                dalTournament.IsFinished,
+                dalTournament.WinnerId,
+                domainPlayersInTournament
+                );
+
+            return domainTournament;
         }
     }
 }
