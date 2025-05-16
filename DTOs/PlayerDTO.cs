@@ -1,8 +1,8 @@
 ﻿using Common.Enums;
 
-namespace DAL.Entities
+namespace DTOs
 {
-    public abstract class Player
+    public abstract class PlayerDTO
     {
         public Guid Id { get; set; }
 
@@ -13,18 +13,13 @@ namespace DAL.Entities
         public Gender Gender { get; set; }
     }
 
-
-    public class FemalePlayer : Player { 
-        public FemalePlayer() { }
-
+    public class FemalePlayerDTO : PlayerDTO
+    {
         public int ReactionTime { get; set; }
     }
 
-
-    public class MalePlayer : Player
+    public class MalePlayerDTO : PlayerDTO
     {
-        public MalePlayer() { }
-
         public int Strength { get; set; }
 
         public int Speed { get; set; }

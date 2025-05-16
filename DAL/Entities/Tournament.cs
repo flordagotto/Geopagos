@@ -4,6 +4,8 @@ namespace DAL.Entities
 {
     public class Tournament
     {
+        public Tournament() { }
+
         public Guid Id { get; set; }
 
         public Gender Type { get; set; }
@@ -12,7 +14,7 @@ namespace DAL.Entities
 
         public bool IsFinished { get; set; }
 
-        public Guid WinnerId { get; set; }
+        public Guid? WinnerId { get; set; }
 
         public Player? Winner { get; set; }
 
