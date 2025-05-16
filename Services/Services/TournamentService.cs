@@ -2,7 +2,6 @@
 using DAL.Repositories;
 using Domain.Entities;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Services.Services

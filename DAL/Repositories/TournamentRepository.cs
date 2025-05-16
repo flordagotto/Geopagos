@@ -55,7 +55,8 @@ namespace DAL.Repositories
             IQueryable<Entities.Tournament> query = _context.Tournaments
                 .Include(t => t.Players)
                 .ThenInclude(pt => pt.Player)
-                .Include(t => t.Matches);
+                .Include(t => t.Matches)
+                .ThenInclude(m => m.Winner);
 
             if (type.HasValue)
                 query = query.Where(t => t.Type == type.Value);

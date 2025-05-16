@@ -10,7 +10,6 @@ namespace Services.DI
         {
             // services
             services.AddScoped<IPlayerService, PlayerService>();
-            services.AddScoped<IMatchService, MatchService>();
             services.AddScoped<ITournamentService, TournamentService>();
 
             // mappers
