@@ -1,10 +1,11 @@
 ﻿using Common.Enums;
 using DAL.Entities;
+using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Context
 {
-    public class GameDbContext : DbContext
+    public class GameDbContext : DbContext, IUnitOfWork
     {
         public GameDbContext(DbContextOptions<GameDbContext> options)
             : base(options)
@@ -15,6 +16,11 @@ namespace DAL.Context
         public DbSet<Match> Matches { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<PlayersByTournament> PlayersByTournament { get; set; }
+
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return base.SaveChangesAsync(cancellationToken);
+        }
 
         private void UseSeed(ModelBuilder modelBuilder)
         {

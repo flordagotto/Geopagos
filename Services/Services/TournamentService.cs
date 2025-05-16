@@ -21,14 +21,16 @@ namespace Services.Services
         public readonly ITournamentRepository _tournamentRepository;
         private readonly IPlayerRepository _playerRepository;
         private readonly IMatchRepository _matchRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<TournamentService> _logger;
 
-        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMatchRepository matchRepository, IMapper mapper, ILogger<TournamentService> logger)
+        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMatchRepository matchRepository, IUnitOfWork unitOfWork, IMapper mapper, ILogger<TournamentService> logger)
         {
             _tournamentRepository = tournamentRepository;
             _playerRepository = playerRepository;
             _matchRepository = matchRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
         }
@@ -96,6 +98,8 @@ namespace Services.Services
                     await _matchRepository.Add(match);
 
                 await _tournamentRepository.SetWinner(tournamentId, winner.Id);
+
+                await _unitOfWork.SaveChangesAsync();
 
                 return winner;
             }

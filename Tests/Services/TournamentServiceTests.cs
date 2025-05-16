@@ -250,6 +250,8 @@ namespace Tests.Services
             _mocker.GetMock<ITournamentRepository>()
                 .Verify(x => x.SetWinner(tournament.Id, winner.Id), Times.Once);
 
+            _mocker.GetMock<IUnitOfWork>()
+                .Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
@@ -266,6 +268,9 @@ namespace Tests.Services
 
             _mocker.GetMock<ITournamentRepository>()
                 .Verify(x => x.SetWinner(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+
+            _mocker.GetMock<IUnitOfWork>()
+                .Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         private Tournament CreateFemaleTournamentAndSetupMapper(bool isFinished = false)

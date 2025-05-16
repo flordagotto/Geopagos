@@ -43,7 +43,6 @@ namespace DAL.Repositories
             var entityMatch = _mapper.Map<Entities.Match>(newMatch);
 
             _context.Matches.Add(entityMatch);
-            await _context.SaveChangesAsync();
         }
     }
 }
