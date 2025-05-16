@@ -14,6 +14,7 @@ namespace DAL.DI
                 options.UseSqlServer(connectionString));
 
             // repositories
+            services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<GameDbContext>());
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IMatchRepository, MatchRepository>();
             services.AddScoped<ITournamentRepository, TournamentRepository>();

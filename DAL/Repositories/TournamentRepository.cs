@@ -117,8 +117,6 @@ namespace DAL.Repositories
 
             tournament.WinnerId = playerId;
             tournament.IsFinished = true;
-
-            await _context.SaveChangesAsync();
         }
     }
 }
