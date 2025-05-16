@@ -31,6 +31,9 @@ namespace Services.Services
         {
             try
             {
+                if (!Enum.IsDefined(newPlayerDTO.Gender))
+                    throw new ArgumentException("The gender must be 0 (male) or 1 (female)");
+
                 Player player = newPlayerDTO.Gender switch
                 {
                     Gender.Female when HasCorrectData(newPlayerDTO, true) =>

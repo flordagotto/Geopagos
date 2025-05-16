@@ -1,4 +1,5 @@
 using AutoMapper;
+using Common.Enums;
 using Common.Helpers;
 using DAL.Repositories;
 using Domain.Entities;
@@ -66,7 +67,7 @@ namespace Tests.Services
         }
 
         [Test]
-        public async Task Create_WhenHasCorrectData_ShouldCreateAPlayer()
+        public async Task Create_HappyPath()
         {
             // Arrange
             var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = 100};
@@ -78,6 +79,20 @@ namespace Tests.Services
 
             // Assert
             _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Once());
+        }
+
+        [Test]
+        public async Task Create_WhenGenderIsNotDefined_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var newPlayerDTO = new NewPlayerDTO { Gender = (Gender)2 };
+
+            // Act && assert
+            var act = async () => await _service.Create(newPlayerDTO);
+
+            await act.Should().ThrowAsync<ArgumentException>("The gender must be 0 (male) or 1 (female)");
+
+            _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
         }
 
         [Test]
