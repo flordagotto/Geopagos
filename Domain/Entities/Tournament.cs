@@ -1,5 +1,4 @@
 ﻿using Common.Enums;
-using System.Security;
 
 namespace Domain.Entities
 {
@@ -60,7 +59,7 @@ namespace Domain.Entities
             return number > 0 && (number & (number - 1)) == 0;
         }
 
-        public Player SimulateTournament()
+        public Player Start()
         {
             Matches = new List<Match>();
             var currentRoundPlayers = new List<Player>(Players);
@@ -94,7 +93,7 @@ namespace Domain.Entities
 
     public static class TournamentFactory
     { //todo: mejorar?
-        public static Tournament FromPersistence(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, IEnumerable<Player> players)
+        public static Tournament LoadFromPersistance(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, IEnumerable<Player> players)
         {
             return new Tournament(id, type, created, isFinished, winnerId, players.ToList());
         }

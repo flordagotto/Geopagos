@@ -22,9 +22,9 @@ namespace Services.Services
         private readonly IPlayerRepository _playerRepository;
         private readonly IMatchRepository _matchRepository;
         private readonly IMapper _mapper;
-        private readonly ILogger<MatchService> _logger;
+        private readonly ILogger<TournamentService> _logger;
 
-        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMatchRepository matchRepository, IMapper mapper, ILogger<MatchService> logger)
+        public TournamentService(ITournamentRepository tournamentRepository, IPlayerRepository playerRepository, IMatchRepository matchRepository, IMapper mapper, ILogger<TournamentService> logger)
         {
             _tournamentRepository = tournamentRepository;
             _playerRepository = playerRepository;
@@ -59,6 +59,11 @@ namespace Services.Services
         {
             try
             {
+                var tournamentPlayers = newTournament.Players.GroupBy(x => x).Where(x => x.Count() > 1);
+
+                if (tournamentPlayers.Any())
+                    throw new ArgumentException("The players can not be repeated.");
+
                 var players = await _playerRepository.GetByIds(newTournament.Players);
                 var missing = newTournament.Players.Except(players.Select(p => p.Id));
 
@@ -85,7 +90,7 @@ namespace Services.Services
             {
                 var tournament = await _tournamentRepository.GetById(tournamentId) ?? throw new Exception("Tournament not found");
                 
-                var winner = tournament.SimulateTournament();
+                var winner = tournament.Start();
 
                 foreach (var match in tournament.Matches)
                     await _matchRepository.Add(match);
