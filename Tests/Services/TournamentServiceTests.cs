@@ -104,6 +104,23 @@ namespace Tests.Services
         }
 
         [Test]
+        public async Task Create_WhenPlayersAreRepeated_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var playerId = Guid.NewGuid();
+            var playersIds = new List<Guid> { playerId, playerId };
+
+            var newTournament = new NewTournamentDTO { Type = Gender.Female, Players = playersIds };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            await act.Should().ThrowAsync<ArgumentException>("The players can not be repeated.");
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        [Test]
         public async Task Create_WhenAmountOfPlayersIsLessThanTwo_ShouldThrowArgumentNullException()
         {
             // Arrange
@@ -203,11 +220,61 @@ namespace Tests.Services
             _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
         }
 
+        [Test]
+        public async Task Start_HappyPath()
+        {
+            // Arrange
+            var tournament = CreateFemaleTournamentAndSetupMapper();
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Setup(x => x.GetById(tournament.Id))
+                .ReturnsAsync(tournament);
+
+            _mocker.GetMock<IMatchRepository>()
+                .Setup(x => x.Add(It.IsAny<Domain.Entities.Match>()));
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Setup(x => x.SetWinner(It.IsAny<Guid>(), It.IsAny<Guid>()));
+
+            // Act 
+            var winner = await _service.StartTournament(tournament.Id);
+
+            // Assert
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Verify(x => x.GetById(tournament.Id), Times.Once);
+
+            _mocker.GetMock<IMatchRepository>()
+                .Verify(x => x.Add(It.IsAny<Domain.Entities.Match>()), Times.Exactly(3));
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Verify(x => x.SetWinner(tournament.Id, winner.Id), Times.Once);
+
+        }
+
+        [Test]
+        public async Task Start_WhenTournamentDoesNotExist_ShouldThrowException()
+        {
+            // Act && assert
+            var act = async () => await _service.StartTournament(Guid.NewGuid());
+
+            await act.Should().ThrowAsync<Exception>("Tournament not found");
+
+            // Assert
+            _mocker.GetMock<IMatchRepository>()
+                .Verify(x => x.Add(It.IsAny<Domain.Entities.Match>()), Times.Never);
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Verify(x => x.SetWinner(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+        }
+
         private Tournament CreateFemaleTournamentAndSetupMapper(bool isFinished = false)
         {
             var player1 = CreatePlayer(Gender.Female);
             var player2 = CreatePlayer(Gender.Female);
-            var playersList = new List<Player> { player1, player2 };
+            var player3 = CreatePlayer(Gender.Female);
+            var player4 = CreatePlayer(Gender.Female);
+            var playersList = new List<Player> { player1, player2, player3, player4 };
 
             var tournament = Tournament.Create(Gender.Female, playersList);
 

@@ -98,7 +98,7 @@ namespace DAL.Repositories
                 domainPlayersInTournament.Add(_mapper.Map<Domain.Entities.Player>(dalPlayer));
             }
 
-            var tournament = TournamentFactory.FromPersistence(
+            var tournament = TournamentFactory.LoadFromPersistance(
                 result.Id, 
                 result.Type, 
                 result.Created, 
