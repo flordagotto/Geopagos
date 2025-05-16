@@ -1,4 +1,5 @@
 using AutoMapper;
+using Common.Enums;
 using Common.Helpers;
 using DAL.Repositories;
 using Domain.Entities;
@@ -66,7 +67,7 @@ namespace Tests.Services
         }
 
         [Test]
-        public async Task Create_WhenHasCorrectData_ShouldCreateAPlayer()
+        public async Task Create_HappyPath()
         {
             // Arrange
             var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = 100};
@@ -81,10 +82,24 @@ namespace Tests.Services
         }
 
         [Test]
+        public async Task Create_WhenGenderIsNotDefined_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var newPlayerDTO = new NewPlayerDTO { Gender = (Gender)2 };
+
+            // Act && assert
+            var act = async () => await _service.Create(newPlayerDTO);
+
+            await act.Should().ThrowAsync<ArgumentException>("The gender must be 0 (male) or 1 (female)");
+
+            _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
+        }
+
+        [Test]
         public async Task Create_WhenHasIncorrectDataForGender_ShouldThrowArgumentException()
         {
             // Arrange
-            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, ReactionTime = 55, Speed = 50, Strength = 100 };
+            var newPlayerDTO = new NewPlayerDTO { Gender = Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, ReactionTime = 55, Speed = 50, Strength = 100 };
 
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
@@ -98,7 +113,7 @@ namespace Tests.Services
         public async Task Create_WhenDataIsMissing_ShouldThrowArgumentException()
         {
             // Arrange
-            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Skill = 88, Speed = 50, Strength = 100 };
+            var newPlayerDTO = new NewPlayerDTO { Gender = Gender.Male, Skill = 88, Speed = 50, Strength = 100 };
 
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
@@ -112,12 +127,12 @@ namespace Tests.Services
         public async Task Create_WhenDataIsWrong_ShouldThrowArgumentException()
         {
             // Arrange
-            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = -5 };
+            var newPlayerDTO = new NewPlayerDTO { Gender = Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = -5 };
 
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
 
-            await act.Should().ThrowAsync<ArgumentException>("Strength must be greater than 0.");
+            await act.Should().ThrowAsync<ArgumentException>("All skills must be between 0 and 100.");
 
             _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
         }
@@ -126,7 +141,7 @@ namespace Tests.Services
         {
             var player = FemalePlayer.Create(RandomGenerator.GenerateRandomName(), 80, 75);
 
-            var playerDTO = new FemalePlayerDTO { Name = player.Name, Skill = 80, ReactionTime = 75, Gender = Common.Enums.Gender.Female };
+            var playerDTO = new FemalePlayerDTO { Name = player.Name, Skill = 80, ReactionTime = 75, Gender = Gender.Female };
              // TODO: mejorar esto
 
             _mocker.GetMock<IMapper>()
