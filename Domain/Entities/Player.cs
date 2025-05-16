@@ -22,6 +22,8 @@ namespace Domain.Entities
         public int Skill { get; }
 
         public Gender Gender { get; }
+
+        public abstract double GetGameValue();
     }
 
     public class FemalePlayer : Player
@@ -40,6 +42,11 @@ namespace Domain.Entities
         }
 
         public int ReactionTime { get; }
+
+        public override double GetGameValue()
+        {
+            return Skill * ReactionTime;
+        }
     }
 
 
@@ -65,5 +72,10 @@ namespace Domain.Entities
         public int Strength { get; }
 
         public int Speed { get; }
+
+        public override double GetGameValue()
+        {
+            return Skill * Strength * Speed;
+        }
     }
 }
