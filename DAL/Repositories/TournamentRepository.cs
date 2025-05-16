@@ -54,7 +54,8 @@ namespace DAL.Repositories
         {
             IQueryable<Entities.Tournament> query = _context.Tournaments
                 .Include(t => t.Players)
-                .ThenInclude(pt => pt.Player);
+                .ThenInclude(pt => pt.Player)
+                .Include(t => t.Matches);
 
             if (type.HasValue)
                 query = query.Where(t => t.Type == type.Value);
@@ -109,7 +110,14 @@ namespace DAL.Repositories
             foreach (var player in dalTournament.Players)
             {
                 var dalPlayer = await _context.Players.FirstOrDefaultAsync((x => x.Id == player.PlayerId));
-                domainPlayersInTournament.Add(_mapper.Map<Domain.Entities.Player>((object?)dalPlayer));
+                domainPlayersInTournament.Add(_mapper.Map<Domain.Entities.Player>(dalPlayer));
+            }
+
+            var domainMatchesInTournament = new List<Domain.Entities.Match>();
+
+            foreach (var match in dalTournament.Matches)
+            {
+                domainMatchesInTournament.Add(_mapper.Map<Domain.Entities.Match>(match));
             }
 
             var domainTournament = TournamentFactory.LoadFromPersistance(
@@ -118,7 +126,8 @@ namespace DAL.Repositories
                 dalTournament.Created,
                 dalTournament.IsFinished,
                 dalTournament.WinnerId,
-                domainPlayersInTournament
+                domainPlayersInTournament,
+                domainMatchesInTournament
                 );
 
             return domainTournament;

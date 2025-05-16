@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using DAL.Context;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
     public interface IMatchRepository
     {
-        Task<List<Domain.Entities.Match>> GetAll();
+        Task<List<Match>> GetAll();
 
-        Task Add(Domain.Entities.Match newMatch);
+        Task Add(Match newMatch);
     }
 
     public class MatchRepository : IMatchRepository
@@ -22,15 +23,29 @@ namespace DAL.Repositories
             _mapper = mapper;
         }
 
-        public async Task<List<Domain.Entities.Match>> GetAll()
+        public async Task<List<Match>> GetAll()
         {
-            var dalMatches = await _context.Matches.ToListAsync();
+            var dalMatches = await _context.Matches
+                .Include(x => x.Player1)
+                .Include(x => x.Player2)
+                .Include(x => x.Winner)
+                .ToListAsync();
 
-            var domainMatches = new List<Domain.Entities.Match>();
+            var domainMatches = new List<Match>();
 
             foreach (var dalMatch in dalMatches)
             {
-                var domainMatch = _mapper.Map<Domain.Entities.Match>(dalMatch);
+                var player1 = _mapper.Map<Player>(dalMatch.Player1);
+                var player2 = _mapper.Map<Player>(dalMatch.Player2);
+                var winner = _mapper.Map<Player>(dalMatch.Winner);
+
+                var domainMatch = MatchFactory.LoadFromPersistance(
+                    dalMatch.Id,
+                    dalMatch.Round,
+                    player1,
+                    player2,
+                    winner
+                    );
 
                 domainMatches.Add(domainMatch);
             }
@@ -38,7 +53,7 @@ namespace DAL.Repositories
             return domainMatches;
         }
 
-        public async Task Add(Domain.Entities.Match newMatch)
+        public async Task Add(Match newMatch)
         {
             var entityMatch = _mapper.Map<Entities.Match>(newMatch);
 

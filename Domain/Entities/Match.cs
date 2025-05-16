@@ -1,4 +1,6 @@
-﻿using Common.Helpers;
+﻿using Common.Enums;
+using Common.Helpers;
+using System.Text.RegularExpressions;
 
 namespace Domain.Entities
 {
@@ -20,6 +22,15 @@ namespace Domain.Entities
             Player1 = player1;
             Player2 = player2;
             Tournament = tournament;
+        }
+
+        internal Match(Guid id, int round, Player player1, Player player2, Player winner)
+        {
+            Id = id;
+            Round = round;
+            Player1 = player1;
+            Player2 = player2;
+            Winner = winner;
         }
 
         public static Match Create(int round, Player player1, Player player2, Tournament tournament)
@@ -55,6 +66,14 @@ namespace Domain.Entities
             }
 
             return Winner;
+        }
+    }
+
+    public static class MatchFactory
+    { //todo: mejorar?
+        public static Match LoadFromPersistance(Guid id, int round, Player player1, Player player2, Player winner)
+        {
+            return new Match(id, round, player1, player2, winner);
         }
     }
 }

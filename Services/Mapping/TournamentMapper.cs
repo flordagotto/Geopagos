@@ -11,7 +11,8 @@ namespace Services.Mapping
             CreateMap<TournamentDTO, Tournament>();
 
             CreateMap<Tournament, TournamentDTO>()
-                .ForMember(dest => dest.Players, opt => opt.MapFrom(src => src.Players));
+                .ForMember(dest => dest.Players, opt => opt.MapFrom(src => src.Players))
+                .ForMember(dest => dest.Matches, opt => opt.MapFrom(src => src.Matches));
 
             CreateMap<Player, PlayerDTO>()
                 .Include<FemalePlayer, FemalePlayerDTO>()
