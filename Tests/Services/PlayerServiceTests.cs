@@ -99,7 +99,7 @@ namespace Tests.Services
         public async Task Create_WhenHasIncorrectDataForGender_ShouldThrowArgumentException()
         {
             // Arrange
-            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, ReactionTime = 55, Speed = 50, Strength = 100 };
+            var newPlayerDTO = new NewPlayerDTO { Gender = Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, ReactionTime = 55, Speed = 50, Strength = 100 };
 
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
@@ -113,7 +113,7 @@ namespace Tests.Services
         public async Task Create_WhenDataIsMissing_ShouldThrowArgumentException()
         {
             // Arrange
-            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Skill = 88, Speed = 50, Strength = 100 };
+            var newPlayerDTO = new NewPlayerDTO { Gender = Gender.Male, Skill = 88, Speed = 50, Strength = 100 };
 
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
@@ -127,7 +127,7 @@ namespace Tests.Services
         public async Task Create_WhenDataIsWrong_ShouldThrowArgumentException()
         {
             // Arrange
-            var newPlayerDTO = new NewPlayerDTO { Gender = Common.Enums.Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = -5 };
+            var newPlayerDTO = new NewPlayerDTO { Gender = Gender.Male, Name = RandomGenerator.GenerateRandomName(), Skill = 88, Speed = 50, Strength = -5 };
 
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
@@ -141,7 +141,7 @@ namespace Tests.Services
         {
             var player = FemalePlayer.Create(RandomGenerator.GenerateRandomName(), 80, 75);
 
-            var playerDTO = new FemalePlayerDTO { Name = player.Name, Skill = 80, ReactionTime = 75, Gender = Common.Enums.Gender.Female };
+            var playerDTO = new FemalePlayerDTO { Name = player.Name, Skill = 80, ReactionTime = 75, Gender = Gender.Female };
              // TODO: mejorar esto
 
             _mocker.GetMock<IMapper>()
