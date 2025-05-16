@@ -2,7 +2,6 @@
 using DAL.Repositories;
 using Domain.Entities;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Services.Services
@@ -61,6 +60,9 @@ namespace Services.Services
         {
             try
             {
+                if(!Enum.IsDefined(newTournament.Type))
+                    throw new ArgumentException("The gender must be 0 (male) or 1 (female)");
+
                 var tournamentPlayers = newTournament.Players.GroupBy(x => x).Where(x => x.Count() > 1);
 
                 if (tournamentPlayers.Any())
@@ -91,6 +93,9 @@ namespace Services.Services
             try
             {
                 var tournament = await _tournamentRepository.GetById(tournamentId) ?? throw new Exception("Tournament not found");
+
+                if (tournament.IsFinished)
+                    throw new Exception("The tournament is already finished.");
                 
                 var winner = tournament.Start();
 

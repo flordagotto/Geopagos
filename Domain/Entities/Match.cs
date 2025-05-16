@@ -12,17 +12,17 @@ namespace Domain.Entities
 
         public Player? Winner { get; set; }
 
-        public Tournament Tournament { get; set; }
+        public Guid TournamentId { get; set; }
 
-        private Match(int round, Player player1, Player player2, Tournament tournament)
+        private Match(int round, Player player1, Player player2, Guid tournamentId)
         {
             Round = round;
             Player1 = player1;
             Player2 = player2;
-            Tournament = tournament;
+            TournamentId = tournamentId;
         }
 
-        public static Match Create(int round, Player player1, Player player2, Tournament tournament)
+        public static Match Create(int round, Player player1, Player player2, Guid tournamentId)
         {
             if (round <= 0)
                 throw new ArgumentException("Round must be greater than 0.");
@@ -30,7 +30,7 @@ namespace Domain.Entities
             if (player1.Id == player2.Id)
                 throw new ArgumentException("A player cannot play against themselves.");
 
-            return new Match(round, player1, player2, tournament);
+            return new Match(round, player1, player2, tournamentId);
         }
 
         public Player PlayMatch()

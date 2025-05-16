@@ -28,7 +28,7 @@ namespace Domain.Entities
             _players = [.. players];
         }
 
-        internal Tournament(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, List<Player> players)
+        internal Tournament(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, List<Player> players, List<Match> matches)
         {
             Id = id;
             Type = type;
@@ -36,6 +36,7 @@ namespace Domain.Entities
             IsFinished = isFinished;
             WinnerId = winnerId;
             _players = players;
+            Matches = matches;
         }
 
         public static Tournament Create(Gender type, IEnumerable<Player> players)
@@ -74,7 +75,7 @@ namespace Domain.Entities
                     var p1 = currentRoundPlayers[i];
                     var p2 = currentRoundPlayers[i + 1];
 
-                    var match = Match.Create(currentRound, p1, p2, this);
+                    var match = Match.Create(currentRound, p1, p2, Id);
 
                     var winner = match.PlayMatch();
 
@@ -93,9 +94,9 @@ namespace Domain.Entities
 
     public static class TournamentFactory
     { //todo: mejorar?
-        public static Tournament LoadFromPersistance(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, IEnumerable<Player> players)
+        public static Tournament LoadFromPersistance(Guid id, Gender type, DateTime created, bool isFinished, Guid? winnerId, IEnumerable<Player> players, IEnumerable<Match> matches)
         {
-            return new Tournament(id, type, created, isFinished, winnerId, players.ToList());
+            return new Tournament(id, type, created, isFinished, winnerId, players.ToList(), matches.ToList());
         }
     }
 }

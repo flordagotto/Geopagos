@@ -104,6 +104,20 @@ namespace Tests.Services
         }
 
         [Test]
+        public async Task Create_WhenGenderIsNotDefined_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var newTournament = new NewTournamentDTO { Type = (Gender)2, Players = new List<Guid>() };
+
+            // Act && assert
+            var act = async () => await _service.Create(newTournament);
+
+            await act.Should().ThrowAsync<ArgumentException>("The gender must be 0 (male) or 1 (female)");
+
+            _mocker.GetMock<ITournamentRepository>().Verify(x => x.Add(It.IsAny<Tournament>()), Times.Never());
+        }
+
+        [Test]
         public async Task Create_WhenPlayersAreRepeated_ShouldThrowArgumentException()
         {
             // Arrange
@@ -262,7 +276,31 @@ namespace Tests.Services
 
             await act.Should().ThrowAsync<Exception>("Tournament not found");
 
-            // Assert
+            _mocker.GetMock<IMatchRepository>()
+                .Verify(x => x.Add(It.IsAny<Domain.Entities.Match>()), Times.Never);
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Verify(x => x.SetWinner(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+
+            _mocker.GetMock<IUnitOfWork>()
+                .Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Start_WhenTournamentIsFinished_ShouldThrowException()
+        {
+            // Arrange
+            var tournament = TournamentFactory.LoadFromPersistance(Guid.NewGuid(), Gender.Female, DateTime.Now, true, null, new List<Player>(), new List<Domain.Entities.Match>());
+
+            _mocker.GetMock<ITournamentRepository>()
+                .Setup(x => x.GetById(tournament.Id))
+                .ReturnsAsync(tournament);
+
+            // Act && assert
+            var act = async () => await _service.StartTournament(tournament.Id);
+
+            await act.Should().ThrowAsync<Exception>("The tournament is already finished.");
+
             _mocker.GetMock<IMatchRepository>()
                 .Verify(x => x.Add(It.IsAny<Domain.Entities.Match>()), Times.Never);
 
