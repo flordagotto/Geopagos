@@ -36,7 +36,7 @@ namespace Domain.Entities
         public static FemalePlayer Create(string name, int skill, int reactionTime)
         {
             if (reactionTime < 0 || reactionTime > 100)
-                throw new ArgumentException("Reaction time must be between 0 and 100.");
+                throw new ArgumentException("All skills must be between 0 and 100.");
 
             return new FemalePlayer(name, skill, reactionTime);
         }
@@ -60,11 +60,8 @@ namespace Domain.Entities
 
         public static MalePlayer Create(string name, int skill, int strength, int speed)
         {
-            if (strength < 0 || strength > 100)
-                throw new ArgumentException("Strength must be between 0 and 100.");
-
-            if (speed < 0 || speed > 100)
-                throw new ArgumentException("Speed must be between 0 and 100.");
+            if (strength < 0 || strength > 100 || speed < 0 || speed > 100)
+                throw new ArgumentException("All skills must be between 0 and 100.");
 
             return new MalePlayer(name, skill, strength, speed);
         }

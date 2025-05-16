@@ -132,7 +132,7 @@ namespace Tests.Services
             // Act && assert
             var act = async () => await _service.Create(newPlayerDTO);
 
-            await act.Should().ThrowAsync<ArgumentException>("Strength must be greater than 0.");
+            await act.Should().ThrowAsync<ArgumentException>("All skills must be between 0 and 100.");
 
             _mocker.GetMock<IPlayerRepository>().Verify(x => x.Add(It.IsAny<Player>()), Times.Never());
         }
